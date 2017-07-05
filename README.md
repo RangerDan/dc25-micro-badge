@@ -19,7 +19,7 @@ Independent Badge for DEFCON 25 developed on the BBC micro:bit platform.  A coll
 
 # Pairing
 
-A micro:badge will not respond to a pageTwo micro:badges can pair by exchaning serial numbers.  A side-channel is used to authenticate presence of a micro:bit before it 
+A micro:badge will not respond to a pageTwo micro:badges can pair by exchaning serial numbers.  A side-channel is used to authenticate presence of a micro:bit before it saves the serial number to the file system.
 
 TBD
 
