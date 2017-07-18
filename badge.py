@@ -35,7 +35,9 @@ else:
 pairing = False
 pairingStart = 0
 pairingAnimation = [Image("50000:50000:50000:50000:50000"),
+                    Image("05000:05000:05000:05000:05000"),
                     Image("00500:00500:00500:00500:00500"),
+                    Image("00050:00050:00050:00050:00050"),
                     Image("00005:00005:00005:00005:00005")]
 
 topic = 0
@@ -88,24 +90,30 @@ while True:
             display.scroll(topics[topic],delay=100,wait=True,loop=False)
             display.show(skull, 200, wait=False, loop=True,clear=False)
 
-    # Pairing Mode start
-    if pairing and running_time() < pairingStart + 10000:    
-        radio.send('P|'+handle)
-        incoming = radio.receive()
-        if incoming is not None and incoming[0] == 'P':
-            newPairing = incoming[2:]
-            if newPairing not in pairings:
-                pairings.append(newPairing)
-                with open('pairings.txt', 'w') as pairingsFile:
-                    pairingsFile.write('\n'.join(pairings))            
-                # Display the paired name
-                display.scroll(newPairing,100,wait=True,loop=False)
-                display.show(skull, 300, wait=False, loop=True,clear=False)
-                pairing = 0
-        else:
-            sleep(500)
-    # Pairing Mode Stop
-    elif pairing and running_time() >= pairingStart + 10000:
-        pairing = False
-        radio.off()
-        display.show(skull, 300, wait=False, loop=True,clear=False)
+    # Pairing Mode
+    if pairing:
+        # Pairing...
+        if running_time() < pairingStart + 10000:    
+            radio.send('P|'+handle)
+            incoming = radio.receive()
+            # Got Something?
+            if incoming is not None and incoming[0] == 'P':
+                newPairing = incoming[2:]
+                if newPairing not in pairings:
+                    pairings.append(newPairing)
+                    with open('pairings.txt', 'w') as pairingsFile:
+                        pairingsFile.write('\n'.join(pairings))            
+                    # Display the paired name
+                    display.scroll(newPairing,100,wait=True,loop=False)
+                    # Turn off pairing
+                    display.show(skull, 300, wait=False, loop=True,clear=False)
+                    radio.off()
+                    pairing = False
+            # Wait and try again
+            else:
+                sleep(500)
+        # Pairing Mode Stop
+        elif pairing and running_time() >= pairingStart + 10000:
+            pairing = False
+            radio.off()
+            display.show(skull, 300, wait=False, loop=True,clear=False)
