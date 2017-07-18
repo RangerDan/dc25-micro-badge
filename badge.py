@@ -4,7 +4,7 @@
 # A glowing skull, bluetooth pairing, and pager
 # -------------------------------------------------------------------
 # Step 1: Insert your handle here:
-handle = 'TheOtherHo'
+handle = 'DuncanYoudaho'
 # Step 2: Install the micropython runtime to your micro:bit
 # Step 3: Use uflash to flash badge.py to your micro:bit
 # Step 4: Find another micro:badge and hold A+B to pair
@@ -18,10 +18,20 @@ from microbit import *
 import os
 import radio
 
-# File Init
+# Load Pairings from File
+# Pairings file Syntax: 
+# Handle1\n
+# HackerHandle2\n
+# 1337H4x0r<EOF>
+handleSeparator = '\n'
+pairings = []
 if 'pairings.txt' not in os.listdir():
-    with open('pairings.txt', 'w') as newPairings:
-        newPairings.write(handle)
+    with open('pairings.txt', 'w') as pairingsFile:
+        pairingsFile.write(handle)
+else:
+    with open('pairings.txt', 'r') as pairingsFile:
+        pairings = pairingsFile.read().split(handleSeparator)
+
 pairing = False
 pairingStart = 0
 pairingAnimation = [Image("50000:50000:50000:50000:50000"),
@@ -83,14 +93,15 @@ while True:
         radio.send('P|'+handle)
         incoming = radio.receive()
         if incoming is not None and incoming[0] == 'P':
-            # file code to save new pairing string that I fell asleep and deleted
-            #pairingsString = pairingsString + name
-            #with open('pairings.txt', 'w') as pairingFile:
-            #    pairingFile.write(pairings)
-            
-            # Display the paired name
-            display.scroll(incoming[2:],100,wait=True,loop=False)
-            pairing = 0
+            newPairing = incoming[2:]
+            if newPairing not in pairings:
+                pairings.append(newPairing)
+                with open('pairings.txt', 'w') as pairingsFile:
+                    pairingsFile.write('\n'.join(pairings))            
+                # Display the paired name
+                display.scroll(newPairing,100,wait=True,loop=False)
+                display.show(skull, 300, wait=False, loop=True,clear=False)
+                pairing = 0
         else:
             sleep(500)
     # Pairing Mode Stop
