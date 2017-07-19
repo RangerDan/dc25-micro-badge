@@ -7,7 +7,8 @@ import radio
 # A glowing skull, bluetooth pairing, and pager
 # -------------------------------------------------------------------
 # Step 1: Insert your handle here:
-handle = 'DuncanYoudaho'
+# handle = 'DuncanYoudaho'
+handle = 'TheOtherHo'
 # Step 2: Install the micropython runtime to your micro:bit
 # Step 3: Use uflash to flash badge.py to your micro:bit
 # Step 4: Find another micro:badge and hold A+B to pair
@@ -28,6 +29,7 @@ pairings = []
 if 'pairings.txt' not in os.listdir():
     with open('pairings.txt', 'w') as pairingsFile:
         pairingsFile.write(handle)
+    pairings = [handle]
 else:
     with open('pairings.txt', 'r') as pairingsFile:
         pairings = pairingsFile.read().split(handleSeparator)
@@ -40,14 +42,17 @@ pairingAnimation = [Image("50000:50000:50000:50000:50000"),
                     Image("00050:00050:00050:00050:00050"),
                     Image("00005:00005:00005:00005:00005")]
 
+pagingAnimation = [Image("99999:99999:99999:99999:99999"),
+                   Image("00000:00000:00000:00000:00000")]
+
 # Topics
 topic = 0
-topics = ["General",
-          "ChillOut",
+topics = ["Gen",
+          "Chill",
           "HHV",
-          "Voting",
+          "Vote",
           "Crypto",
-          "Wireless",
+          "Wifi",
           "Trk1",
           "Trk2",
           "Trk3",
@@ -63,6 +68,9 @@ skull = [Image("05550:50505:55055:05550:05550"),
 display.scroll('/r/defcon')
 
 display.show(skull, 200, wait=False, loop=True, clear=False)
+radio.on()
+radio.config(length=64)
+# Ready for action
 
 while True:
     # default
@@ -74,7 +82,6 @@ while True:
                          loop=True, clear=False)
             pairing = True
             pairingStart = running_time()
-            radio.on()
         # Move Left
         elif button_a.is_pressed():
             if topic == 0:
@@ -110,7 +117,6 @@ while True:
                     # Turn off pairing
                     display.show(skull, 300, wait=False,
                                  loop=True, clear=False)
-                    radio.off()
                     pairing = False
             # Wait and try again
             else:
@@ -118,5 +124,26 @@ while True:
         # Pairing Mode Stop
         elif pairing and running_time() >= pairingStart + 10000:
             pairing = False
-            radio.off()
             display.show(skull, 300, wait=False, loop=True, clear=False)
+
+    # Broadcast if shaken vigorously
+    if accelerometer.was_gesture('shake'):
+        display.scroll(topics[topic], delay=100, wait=True, loop=False)
+        for name in pairings:
+            if(name != handle):
+                radio.send('B|'+handle+'|'+name+'|'+topics[topic])
+        display.show(skull, 300, wait=False, loop=True, clear=False)
+
+    # Detect a page
+    if not pairing:
+        incoming = radio.receive()
+        if incoming is not None and incoming[0] == 'B':
+            display.show(pagingAnimation, 200, wait=True, loop=False, clear=False)
+            display.show(pagingAnimation, 200, wait=True, loop=False, clear=False)
+            display.show(pagingAnimation, 200, wait=True, loop=False, clear=False)
+            page = incoming.split('|')
+            if page[2] == handle and page[1] != handle and page[1] in pairings:
+                display.scroll(page[1]+'-', delay=100, wait=True, loop=False)
+                display.scroll(page[3], delay=100, wait=True, loop=False)
+            display.show(skull, 300, wait=False, loop=True, clear=False)
+            
