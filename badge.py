@@ -1,14 +1,14 @@
 from microbit import *
 import os
 import radio
+import music
 # DEFCON 25 micro:badge
 # Badge for /r/defcon on BBC micro:bit running micropython
 # By DuncanYoudaho and TrustedRoot
 # A glowing skull, bluetooth pairing, and pager
 # -------------------------------------------------------------------
 # Step 1: Insert your handle here:
-# handle = 'DuncanYoudaho'
-handle = 'TheOtherHo'
+handle = 'DuncanYoudaho'
 # Step 2: Install the micropython runtime to your micro:bit
 # Step 3: Use uflash to flash badge.py to your micro:bit
 # Step 4: Find another micro:badge and hold A+B to pair
@@ -65,13 +65,20 @@ skull = [Image("05550:50505:55055:05550:05550"),
          Image("05550:56565:55655:05550:05550"),
          Image("05550:53535:55355:05550:05550")]
 
-display.scroll('/r/defcon')
+# Tones for send, recieve
+tuneSend = ["G4:8","C","D","G3"]
+tuneReceive = ["G3:8","D4","E","C"]
 
+# Opening Scroll/Skull
+display.scroll('/r/defcon')
 display.show(skull, 200, wait=False, loop=True, clear=False)
+music.play(tuneSend)
+music.play(["R:16"])
+music.play(tuneReceive)
 radio.on()
 radio.config(length=64)
-# Ready for action
 
+# Ready for action
 while True:
     # default
     if not pairing and (button_a.is_pressed() or button_b.is_pressed()):
@@ -132,18 +139,19 @@ while True:
         for name in pairings:
             if(name != handle):
                 radio.send('B|'+handle+'|'+name+'|'+topics[topic])
+                music.play(tuneSend)
         display.show(skull, 300, wait=False, loop=True, clear=False)
 
     # Detect a page
     if not pairing:
         incoming = radio.receive()
         if incoming is not None and incoming[0] == 'B':
-            display.show(pagingAnimation, 200, wait=True, loop=False, clear=False)
-            display.show(pagingAnimation, 200, wait=True, loop=False, clear=False)
-            display.show(pagingAnimation, 200, wait=True, loop=False, clear=False)
             page = incoming.split('|')
             if page[2] == handle and page[1] != handle and page[1] in pairings:
+                display.show(pagingAnimation, 200, wait=True, loop=False, clear=False)
+                display.show(pagingAnimation, 200, wait=True, loop=False, clear=False)
+                display.show(pagingAnimation, 200, wait=True, loop=False, clear=False)
+                music.play(tuneReceive)
                 display.scroll(page[1]+'-', delay=100, wait=True, loop=False)
                 display.scroll(page[3], delay=100, wait=True, loop=False)
-            display.show(skull, 300, wait=False, loop=True, clear=False)
-            
+                display.show(skull, 300, wait=False, loop=True, clear=False)
