@@ -1,3 +1,6 @@
+from microbit import *
+import os
+import radio
 # DEFCON 25 micro:badge
 # Badge for /r/defcon on BBC micro:bit running micropython
 # By DuncanYoudaho and TrustedRoot
@@ -10,16 +13,13 @@ handle = 'DuncanYoudaho'
 # Step 4: Find another micro:badge and hold A+B to pair
 # Step 5: Hook up headphones to GND and Pin 0
 # Step 6: Send a page by choosing a topic and shaking the badge
-#---------------------------------------------------------------------
+# ---------------------------------------------------------------------
 # If you've paired and want to reflash your firmware, use ufs tool
 # to save pairings file and restore after flashing
-#---------------------------------------------------------------------
-from microbit import *
-import os
-import radio
+# ---------------------------------------------------------------------
 
 # Load Pairings from File
-# Pairings file Syntax: 
+# Pairings file Syntax:
 # Handle1\n
 # HackerHandle2\n
 # 1337H4x0r<EOF>
@@ -40,6 +40,7 @@ pairingAnimation = [Image("50000:50000:50000:50000:50000"),
                     Image("00050:00050:00050:00050:00050"),
                     Image("00005:00005:00005:00005:00005")]
 
+# Topics
 topic = 0
 topics = ["General",
           "ChillOut",
@@ -61,7 +62,7 @@ skull = [Image("05550:50505:55055:05550:05550"),
 
 display.scroll('/r/defcon')
 
-display.show(skull, 200, wait=False, loop=True,clear=False)
+display.show(skull, 200, wait=False, loop=True, clear=False)
 
 while True:
     # default
@@ -69,7 +70,8 @@ while True:
         # debounce
         sleep(150)
         if button_a.is_pressed() and button_b.is_pressed():
-            display.show(pairingAnimation,200,wait=False,loop=True,clear=False)
+            display.show(pairingAnimation, 200, wait=False,
+                         loop=True, clear=False)
             pairing = True
             pairingStart = running_time()
             radio.on()
@@ -79,21 +81,21 @@ while True:
                 topic = maxTopic
             else:
                 topic = topic - 1
-            display.scroll(topics[topic],delay=100,wait=True,loop=False)
-            display.show(skull, 200, wait=False, loop=True,clear=False)
+            display.scroll(topics[topic], delay=100, wait=True, loop=False)
+            display.show(skull, 200, wait=False, loop=True, clear=False)
         # Move Right
         elif button_b.is_pressed():
             if topic == maxTopic:
                 topic = 0
             else:
                 topic = topic + 1
-            display.scroll(topics[topic],delay=100,wait=True,loop=False)
-            display.show(skull, 200, wait=False, loop=True,clear=False)
+            display.scroll(topics[topic], delay=100, wait=True, loop=False)
+            display.show(skull, 200, wait=False, loop=True, clear=False)
 
     # Pairing Mode
     if pairing:
         # Pairing...
-        if running_time() < pairingStart + 10000:    
+        if running_time() < pairingStart + 10000:
             radio.send('P|'+handle)
             incoming = radio.receive()
             # Got Something?
@@ -102,11 +104,12 @@ while True:
                 if newPairing not in pairings:
                     pairings.append(newPairing)
                     with open('pairings.txt', 'w') as pairingsFile:
-                        pairingsFile.write('\n'.join(pairings))            
+                        pairingsFile.write('\n'.join(pairings))
                     # Display the paired name
-                    display.scroll(newPairing,100,wait=True,loop=False)
+                    display.scroll(newPairing, 100, wait=True, loop=False)
                     # Turn off pairing
-                    display.show(skull, 300, wait=False, loop=True,clear=False)
+                    display.show(skull, 300, wait=False,
+                                 loop=True, clear=False)
                     radio.off()
                     pairing = False
             # Wait and try again
@@ -116,4 +119,4 @@ while True:
         elif pairing and running_time() >= pairingStart + 10000:
             pairing = False
             radio.off()
-            display.show(skull, 300, wait=False, loop=True,clear=False)
+            display.show(skull, 300, wait=False, loop=True, clear=False)
