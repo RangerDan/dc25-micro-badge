@@ -11,11 +11,14 @@ Independent Badge for DEFCON 25 developed on the BBC micro:bit platform.  A coll
 
 - On startup, displays '/r/defcon' and a skull animation
 - Hold A+B to pair with another micro:badge.  Their handle will be saved to pairings.txt
+- Use BTLE and sensors as a pager network: sends handle and topic to paired badges by shaking the badge.
+- Get notified of received pages on the screen.  It will flash three times followed by the handle and topic of the page.  Hook up speakers/headphones to GND and Pin 0 to hear a page.
 
-# Future Dev
+# Possible Future Dev
 
-- Use BTLE and sensors as a pager network: sends handle and topic to paired badges.
+- Increase character support.  Handles cannot contain pipes, |, currently
 - Mesh network of micro-badges repeating pages to extend range
+- Encryption of page information to add replay resistance, privacy, authentication, jamming resistance
 - micro:badge on other BTLE platforms
 - Listening post/repeater/logger for analyzing traffic
 
@@ -25,7 +28,7 @@ A micro:badge will not respond to a page unless it has been paired.  The Two mic
 
 # Paging
 
-TBD
+Simply shake the badge to send a page to all paired handles.  This will notify the user visually and, if they have a speaker connected to ground and Pin 0, a short notification tune.
 
 # Updating
 
